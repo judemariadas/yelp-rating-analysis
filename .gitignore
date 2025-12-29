@@ -1,0 +1,10 @@
+# Data (do not upload)
+Data Task Files/
+Data Task Files.zip
+Data Task Instructions.pdf
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS junk
+.DS_Store
