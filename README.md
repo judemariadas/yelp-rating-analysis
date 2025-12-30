@@ -1,117 +1,68 @@
-Do Yelp Star Ratings Drive Revenue?
+# Do Yelp Stars Influence Revenue?
 
-This project studies whether small changes in Yelp star ratings causally affect restaurant revenue, or whether higher revenue simply reflects higher underlying quality.
+**Question:**  
+Do small changes in displayed Yelp star ratings *causally* affect restaurant revenue, or do higher revenues simply reflect higher underlying quality?
 
-Yelp displays ratings in half-star increments, which creates a useful natural experiment: two restaurants with nearly identical true scores can end up in different visible rating buckets. I use this discontinuity to isolate the impact of the star badge itself.
+This project uses a **Regression Discontinuity Design (RDD)** to isolate the causal effect of crossing a half-star rating threshold on restaurant revenue.
 
-Motivation
+## Why This Matters
 
-Star ratings play an outsized role in consumer decision-making, but it’s not obvious whether they cause better outcomes or merely summarize quality.
+- Yelp ratings are highly visible and updated frequently  
+- If ratings causally drive revenue, reputation management has real ROI  
+- If not, does higher revenue reflect better underlying quality?
 
-From a business perspective, this matters because:
+Understanding this distinction matters for:
+- restaurant owners
+- platform designers
 
-Small rating changes are common
+## Key Insight
 
-Reputation management is costly
+Yelp displays ratings in **half-star increments**.
 
-If stars directly drive revenue, marginal improvements near thresholds may have outsized returns
+Two restaurants with nearly identical underlying scores can:
+- appear in **different rating buckets**
+- receive very different consumer attention
 
-The goal here is to separate signal (quality) from display (stars).
+This creates a **natural experiment** at each half-star cutoff.
 
-Data
+## Methodology: Regression Discontinuity Design (RDD)
 
-Yelp restaurant-level data
+We exploit the discontinuity at half-star thresholds:
 
-Outcome: log revenue (logrev)
+- **Running variable:** centered Yelp score (distance from cutoff)
+- **Treatment:** crossing the half-star threshold
+- **Outcome:** log restaurant revenue
 
-Running variable: true Yelp score (score)
+Key assumption:
+> Restaurants just above and just below the cutoff are comparable in quality.
 
-Treatment: crossing a half-star rating threshold
+We estimate the treatment effect using two complementary approaches:
 
-Ratings are rounded mechanically, which allows comparison of restaurants just below vs. just above each cutoff.
+### 1. Manual RDD (Local Linear OLS)
+- Local linear regression within a bandwidth around the cutoff
+- Transparent and easy to interpret
 
-Strategy
-Regression Discontinuity Design (RDD)
+### 2. `rdrobust`
+- Data-driven bandwidth selection
+- Robust inference optimized for RDD settings
 
-I center each restaurant’s score around the nearest half-star cutoff and compare outcomes locally on either side.
+## Manipulation Check
 
-Key idea:
+A key threat to RDD validity is **strategic manipulation** of the running variable.
 
-If quality evolves smoothly, revenue should also evolve smoothly
+We test this by examining the distribution of true Yelp scores around half-star cutoffs.
 
-Any sharp jump at the cutoff can be attributed to the star rating itself
+**Result:**
+- No visible spikes or bunching around thresholds
+- Suggests restaurants are *not* precisely manipulating ratings
+- Supports the credibility of the RDD design
 
-I implement RDD in two ways:
+## Results Summary
 
-Manual local linear regression with an interaction between distance-to-cutoff and treatment
+- Based on p-values and Confidence Intervals, we see that crossing a half-star threshold leads to a **statistically significant increase in revenue**
+- Manual OLS and `rdrobust` estimates are directionally consistent, although `rdrobust` produces wider confidence intervals due to bias correction
+- Estimated revenue increases range from ~125% to ~195% locally at the half-star cutoff
 
-rdrobust, which applies best-practice bandwidth selection, kernel weighting, and bias correction
+**Interpretation:**  
+Crossing a half-star rating threshold causes a discrete increase in revenue for restaurants near the cutoff (independent of underlying quality).
 
-Both approaches estimate the same causal quantity:
-the discrete jump in revenue from gaining a half star.
-
-Manipulation Check
-
-A core RD assumption is that agents cannot precisely manipulate the running variable.
-
-To test this, I examine the distribution of true scores:
-
-Plot a histogram of scores
-
-Overlay half-star cutoffs
-
-Look for bunching just above thresholds
-
-Result:
-There is no visible spike or bunching around cutoffs, suggesting restaurants are not systematically manipulating scores to gain higher star ratings.
-
-Results
-
-There is a large and statistically significant jump in revenue at half-star thresholds
-
-Manual RDD estimates suggest an increase of roughly 120–130%
-
-Bias-corrected rdrobust estimates suggest effects closer to 180–200%
-
-Confidence intervals are wider under rdrobust, but the effect remains highly significant
-
-Importantly:
-
-Revenue trends smoothly below the cutoff
-
-The jump occurs exactly at the threshold
-
-Results are stable across bandwidth choices and estimation methods
-
-Interpretation
-
-The findings indicate that:
-
-Yelp star ratings are not just passive summaries of quality
-
-The discrete star rating acts as a badge materially affecting consumer behavior
-
-Visibility and platform design amplify small underlying differences into large economic outcomes
-
-In short:
-
-Gaining a half star can plausibly double restaurant revenue, even when true quality is held constant locally.
-
-Why This Matters
-
-For restaurant owners
-
-Small improvements near rating thresholds may yield outsized returns
-
-For platforms
-
-Rating system design has real economic consequences
-
-Monitoring manipulation and incentive effects is critical
-
-
-Repository Structure
-
-Notebook: full analysis, visualizations, and robustness checks
-
-README: summary of motivation, method, and results
